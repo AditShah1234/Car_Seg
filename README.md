@@ -1,5 +1,5 @@
 # Car Detection Project
-[![Video Title]()]()
+[![Video Title](https://github.com/AditShah1234/Car_Seg/blob/main/asset/output.png)](https://github.com/AditShah1234/Car_Seg/blob/main/asset/output_fastRCNN.mp4)
 This project allows for object detection using different models such as YOLOv5, Fast R-CNN, and SSD. The main scripts can be used to compare model performances, run object detection on video or image files, or perform real-time object detection.
 
 ## Main Scripts
