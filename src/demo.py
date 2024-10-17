@@ -61,7 +61,7 @@ def parse_arguments():
         "--model_name",
         type=str,
         choices=["YOLOv5", "fastRCNN", "Fast_rcnn_half", "SSD"],
-        default="fastRCNN",
+        default="YOLOv5",
         help="Name of the model",
     )
     parser.add_argument(
@@ -75,7 +75,7 @@ def parse_arguments():
     parser.add_argument(
         "--output_file",
         type=str,
-        default="output_fastRCNN.mp4",
+        default="output_yolo_4.mp4",
         help="Path to save the output file (default: output.mp4).",
     )
     parser.add_argument(
@@ -87,11 +87,11 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--batch_size", type=int, default=8, help="Batch size should be more than 0"
+        "--batch_size", type=int, default=4, help="Batch size should be more than 0"
     )
 
     parser.add_argument(
-        "--skip_frame", type=int, default=64, help="To make it fast we skip the frame"
+        "--skip_frame", type=int, default=1, help="To make it fast we skip the frame"
     )
 
     parser.add_argument(
