@@ -1,13 +1,9 @@
 import matplotlib.pyplot as plt
-import numpy as np 
-import torchvision.transforms.functional as F
+import numpy as np
+import cv2
 
-def show(imgs):
-    if not isinstance(imgs, list):
-        imgs = [imgs]
-    fig, axs = plt.subplots(ncols=len(imgs), squeeze=False)
-    for i, img in enumerate(imgs):
-        img = img.detach()
-        img = F.to_pil_image(img)
-        axs[0, i].imshow(np.asarray(img))
-        axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
+
+def frame_show(list_image):
+    for indx, image in enumerate(list_image):
+        cv2.imshow("Image-{}".format(indx), image)
+        cv2.waitKey(600)
