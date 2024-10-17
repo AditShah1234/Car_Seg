@@ -1,5 +1,5 @@
 # Car Detection Project
-
+[![Video Title]()]()
 This project allows for object detection using different models such as YOLOv5, Fast R-CNN, and SSD. The main scripts can be used to compare model performances, run object detection on video or image files, or perform real-time object detection.
 
 ## Main Scripts
@@ -55,6 +55,11 @@ Each script accepts command-line arguments for configuration, managed through `a
    - Type: `float`
    - Default: `0.4`
    - Description: Sets the confidence threshold for detection (range: 0-1).
+
+## Results
+
+- Video Clip FPS: 60fps
+- Achieved FPS using Yolov5n : 7fps
 
 ## Citation
 

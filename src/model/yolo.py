@@ -30,7 +30,7 @@ class YOLO:
         no_images = len(image_list)
         for i in tqdm(range(0, no_images, batch_size)):
             if i + batch_size > no_images - 1:
-                f = image_list[i:]
+                break
             else:
                 f = image_list[i : i + batch_size]
             r = self.infer(f)
