@@ -3,6 +3,7 @@ import sys
 import torchvision
 
 sys.path.append("../")
+
 from util.gaussian_blur import gaussian_blur
 import logging
 import time
@@ -11,11 +12,9 @@ from tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-class FastRCNN:
-    def __init__(self, sub_model="resnet50", conf_threshold=0.2):
-        self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-            pretrained=True
-        )
+class SSD:
+    def __init__(self, sub_model=None, conf_threshold=0.2):
+        self.model = torchvision.models.detection.ssd300_vgg16(pretrained=True)
         self.classe_id = 3  # Class ID for 'car' in COCO dataset
         self.conf_threshold = conf_threshold
 
@@ -32,6 +31,7 @@ class FastRCNN:
     def infer_batch(self, image_list, batch_size=16):
         self.model.eval()
         results = []
+
         start_time = time.time()
         no_images = len(image_list)
         for i in tqdm(range(0, no_images, batch_size)):
@@ -63,7 +63,7 @@ class FastRCNN:
                 if (
                     label == self.classe_id
                     and result["scores"][i] > self.conf_threshold
-                ):  # Class ID for 'car' in COCO dataset
+                ):
                     car_boxes.append(result["boxes"][i].tolist())
 
             # Apply Gaussian blur on detected cars
