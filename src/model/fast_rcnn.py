@@ -40,7 +40,7 @@ class FastRCNN:
             else:
                 f = image_list[i : i + batch_size]
             r = self.infer(f)
-            results.append(r)
+            results.extend(r)
         end_time = time.time()
         self.results = results
         logger.info(

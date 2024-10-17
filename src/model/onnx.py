@@ -1,57 +1,43 @@
 import torch
 import sys
-import torchvision
+import time
 
 sys.path.append("../")
 from util.gaussian_blur import gaussian_blur
 import logging
-import time
-from tqdm import tqdm
+import onnxruntime as ort
+from yolov5.utils.general import non_max_suppression
 
 logger = logging.getLogger(__name__)
+from tqdm import tqdm
+import cv2
+import numpy as np
 
 
-class fast_rcnn_half:
-    def __init__(self, sub_model="resnet50", conf_threshold=0.2):
-        self.model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-            pretrained=True
-        )
-        self.model.half()
-        self.class_id = 3  # Class ID for 'car' in COCO dataset
+class YOLO_onnx:
+    def __init__(self, sub_model="yolov5n", conf_threshold=0.5):
+        self.model = torch.hub.load("ultralytics/yolov5", "custom", "yolov5s.onnx")
+        self.model = ort.InferenceSession("yolov5s.onnx")
+        self.class_id = 2  # For Car
         self.conf_threshold = conf_threshold
 
     def infer(self, frame_list):
-        """
-        For final inference
 
-        Args:
-            frame_list : List of all the frames
-
-        Returns:
-            result :Output of the model
-
-        """
-        self.model.eval()
         frame = [
-            torch.from_numpy(image).permute(2, 0, 1).half() / 255.0
+            cv2.resize(image, (640, 640), interpolation=cv2.INTER_AREA)
+            .astype(np.float16)
+            .transpose((2, 0, 1))
             for image in frame_list
-        ]  # Convert the image to tensor
-        results = self.model(frame)  # Infer
+        ]
+        ort_output = self.model.get_outputs()[0].name
+        ort_inputs = {self.model.get_inputs()[0].name: frame}
+        results = self.model.run([ort_output], ort_inputs)
+        output = torch.from_numpy(np.asarray(results))
+        results = non_max_suppression(output, conf_thres=0.2, iou_thres=0.5)[0]
         return results
 
     def infer_batch(self, image_list, batch_size=16):
-        """
-        For batch inference converting frames to batch
 
-        Args:
-            image_list : List of all the frames
-            batch_size: Batch Size
-
-        Returns:
-            result: concatenated output of all the batchs
-
-        """
-        self.model.eval()
         results = []
         start_time = time.time()
         no_images = len(image_list)
@@ -61,7 +47,7 @@ class fast_rcnn_half:
             else:
                 f = image_list[i : i + batch_size]
             r = self.infer(f)
-            results.extend(r)
+            results.append(r)
         end_time = time.time()
         self.results = results
         logger.info(
@@ -73,17 +59,6 @@ class fast_rcnn_half:
         return results
 
     def apply_gausian_blur(self, image_list, results):
-        """
-        Applying gausian blur
-
-        Args:
-            image_list : List of all the frames
-            result: Output of the model
-
-        Returns:
-            output: Result after putting the gaussian blur on the cars
-
-        """
         if results == None:
             results = self.results
         output = []
@@ -91,11 +66,11 @@ class fast_rcnn_half:
             frame, result = i[0], i[1]
 
             car_boxes = []
-            for i, label in enumerate(result["labels"]):
+            for i, res in enumerate(result):
                 if (
-                    label == self.class_id and result["scores"][i] > self.conf_threshold
+                    res[5] == self.class_id and res[4] > self.conf_threshold
                 ):  # Allowing car class only andallowing only prediction above the threshold
-                    car_boxes.append(result["boxes"][i].tolist())
+                    car_boxes.append(res[:4])
 
             # Apply Gaussian blur on detected cars
             if car_boxes:

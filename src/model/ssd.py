@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class SSD:
     def __init__(self, sub_model=None, conf_threshold=0.2):
         self.model = torchvision.models.detection.ssd300_vgg16(pretrained=True)
-        self.classe_id = 3  # Class ID for 'car' in COCO dataset
+        self.class_id = 3  # Class ID for 'car' in COCO dataset
         self.conf_threshold = conf_threshold
 
     def infer(self, frame_list):
@@ -40,7 +40,7 @@ class SSD:
             else:
                 f = image_list[i : i + batch_size]
             r = self.infer(f)
-            results.append(r)
+            results.extend(r)
         end_time = time.time()
         self.results = results
         logger.info(
@@ -60,10 +60,7 @@ class SSD:
 
             car_boxes = []
             for i, label in enumerate(result["labels"]):
-                if (
-                    label == self.classe_id
-                    and result["scores"][i] > self.conf_threshold
-                ):
+                if label == self.class_id and result["scores"][i] > self.conf_threshold:
                     car_boxes.append(result["boxes"][i].tolist())
 
             # Apply Gaussian blur on detected cars

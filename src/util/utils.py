@@ -46,7 +46,10 @@ class video_utils:
     def save_video(self, list_frame, output_video_path):
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         out = cv2.VideoWriter(
-            output_video_path, fourcc, self.fps, (self.frame_width, self.frame_height)
+            output_video_path,
+            fourcc,
+            self.fps,
+            (self.frame_width, self.frame_height),
         )
         for frame in list_frame:
             out.write(frame)

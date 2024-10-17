@@ -49,6 +49,7 @@ class YOLO:
         if results == None:
             results = self.results
         output = []
+
         for i in results:
             for j in range(len(i.ims)):
                 frame, result = i.ims[j], i.xyxy[j]
